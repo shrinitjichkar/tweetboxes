@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}My Tweets - Tweetbox{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>My Tweets</h4>
+            <a href="{% url 'core:feed' %}" class="btn btn-outline-primary">Back to Feed</a>
+        </div>
+
+        {% for tweet in page_obj %}
+        <div class="tweet-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center mb-2">
+                        <strong class="me-2">@{{ tweet.user.username }}</strong>
+                        <span class="tweet-meta">{{ tweet.created_at|timesince }} ago</span>
+                        {% if tweet.updated_at != tweet.created_at %}
+                            <span class="tweet-meta ms-2">(edited)</span>
+                        {% endif %}
+                    </div>
+                    <div class="tweet-content">{{ tweet.content|linebreaks }}</div>
+                    {% if tweet.image %}
+                    <div class="mt-2 mb-2">
+                        <img src="{{ tweet.image.url }}" alt="Tweet image" class="img-fluid rounded" style="max-height: 400px; width: auto;">
+                    </div>
+                    {% endif %}
+                    <div class="mt-2">
+                        <span class="text-muted small">
+                            <i class="bi bi-heart"></i> {{ tweet.total_likes }} likes
+                        </span>
+                    </div>
+                </div>
+                <div class="ms-3">
+                    <div class="btn-group-vertical">
+                        <a href="{% url 'tweets:edit' tweet.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a href="{% url 'tweets:delete' tweet.id %}" class="btn btn-sm btn-outline-danger mt-1">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5">
+            <p class="text-muted">You haven't posted any tweets yet.</p>
+            <a href="{% url 'core:feed' %}" class="btn btn-primary">Create Your First Tweet</a>
+        </div>
+        {% endfor %}
+
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
